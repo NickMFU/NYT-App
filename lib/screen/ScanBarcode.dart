@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 class ScanBarcodePage extends StatefulWidget {
   @override
@@ -8,6 +10,8 @@ class ScanBarcodePage extends StatefulWidget {
 
 class _ScanBarcodePageState extends State<ScanBarcodePage> {
   List<String> _scannedBarcodes = [];
+  CollectionReference _worksCollection =
+      FirebaseFirestore.instance.collection('works');
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,12 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                 },
               ),
             ),
+            ElevatedButton(
+              onPressed: () {
+                _saveScannedBarcodes();
+              },
+              child: Text('Save Barcodes'),
+            ),
           ],
         ),
       ),
@@ -77,5 +87,34 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
     setState(() {
       _scannedBarcodes.removeAt(index);
     });
+  }
+
+  Future<void> _saveScannedBarcodes() async {
+    try {
+      String workID = 'YOUR_WORK_ID'; // Replace with the actual work ID
+
+      // Create a reference to the 'items' subcollection of the specified work
+      CollectionReference itemsCollection =
+          _worksCollection.doc(workID).collection('items');
+
+      for (String barcode in _scannedBarcodes) {
+        String documentId = 'Item_${Random().nextInt(90000) + 10000}';
+
+        // Add each scanned barcode to the 'items' subcollection
+        await itemsCollection.doc(documentId).set({
+          'barcode': barcode,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Clear the scanned barcodes list after saving to the database
+      setState(() {
+        _scannedBarcodes.clear();
+      });
+
+      print('Scanned barcodes saved to Firestore in the "items" subcollection.');
+    } catch (e) {
+      print('Error saving scanned barcodes: $e');
+    }
   }
 }

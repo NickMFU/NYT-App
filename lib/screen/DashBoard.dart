@@ -1,7 +1,10 @@
 // Dashboard.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:namyong_demo/Component/bottom_nav.dart';
 import 'package:namyong_demo/screen/AllWork.dart';
+import 'package:namyong_demo/screen/CreateWork.dart';
+import 'package:namyong_demo/screen/Notification.dart';
 import 'package:namyong_demo/screen/RecordDamage.dart';
 import 'package:namyong_demo/screen/allwork2.dart';
 import 'package:namyong_demo/screen/login.dart';
@@ -14,11 +17,13 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0.0,
         toolbarHeight: 100,
         title: Text(
@@ -42,10 +47,7 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
       ),
-      
-      
       body: Container(
-        
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 2.0),
         child: GridView.count(
           crossAxisCount: 2,
@@ -58,11 +60,35 @@ class _DashboardState extends State<Dashboard> {
           ],
         ),
       ),
-      
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          // Handle navigation based on index
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Dashboard()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CreateWorkPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Noti()),
+            );
+          } 
+        },
+      ),
     );
   }
+  }
 
-  // ... rest of the code ...
 
   Card makeDashboardItem(String title, IconData icon, String collection) {
     return Card(
@@ -127,7 +153,7 @@ class _DashboardState extends State<Dashboard> {
                   const SizedBox(height: 20.0),
                   Center(
                     child: Text(
-                      '$title\nCount: $itemCount',
+                      '$title\n $itemCount',
                       style: const TextStyle(fontSize: 18.0, color: Colors.black),
                     ),
                   ),
@@ -139,4 +165,4 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
-}
+
